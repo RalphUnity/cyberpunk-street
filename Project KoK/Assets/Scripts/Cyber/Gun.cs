@@ -16,6 +16,7 @@ public class Gun : MonoBehaviour
     public GameObject impactEffect;
     public GameObject bulletTrail;
     public Transform firePoint;
+    public AudioSource rifleSound;
 
 
     private float nextTimeToFire = 0f;
@@ -33,6 +34,7 @@ public class Gun : MonoBehaviour
     void Shoot()
     {
         muzzleFlash.Play();
+        rifleSound.Play();
 
         RaycastHit hit;
         if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
