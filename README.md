@@ -5,7 +5,7 @@ Unity Version: 2019.1.8f1
 
 Removed some assets due to license terms
 
-Assets:
+Here is the list of assets I've used:
 1. Modular City Pack
 2. The Hunt
 3. Stylized Vehicles Pack Free
