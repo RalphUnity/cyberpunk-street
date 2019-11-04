@@ -1,4 +1,4 @@
-# project-kok
+# cyberpunk-street
 Real-time cyberpunk environment scene made in Unity.
 
 Unity Version: 2019.1.8f1
