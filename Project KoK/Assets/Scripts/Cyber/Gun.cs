@@ -5,24 +5,51 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
 
-    public float damage = 10f;
-    public float range = 100f;
-    public float impactForce = 30f;
+    public float bulletSpeed = 5000;
     public float fireRate = 15f;
-    public float mSpeed = 10.0f;
 
-    public Camera fpsCam;
+    List<GameObject> bulletList;
+
+    public int maxAmmo = 30;
+    private int currentAmmo;
+    public float reloadTime = 1f;
+    private bool isReloading = false;
+
     public ParticleSystem muzzleFlash;
-    public GameObject impactEffect;
-    public GameObject bulletTrail;
-    public Transform firePoint;
-    public AudioSource rifleSound;
-
+    public AudioSource bulletAudio;
+    public GameObject bullet;
+    public GameObject scopeOverlay;
+    public Camera mainCamera;
 
     private float nextTimeToFire = 0f;
+
+    public Animator animator;
+    public Animator scopeAnimator;
+
+    void Start()
+    {
+        currentAmmo = maxAmmo;
+
+        bulletList = new List<GameObject>();
+        for(int i = 0; i < 30; i++)
+        {
+            GameObject objBullet = (GameObject)Instantiate(bullet);
+            objBullet.SetActive(false);
+            bulletList.Add(objBullet);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
+        if (isReloading)
+            return;
+
+        if(currentAmmo <= 0)
+        {
+            StartCoroutine(Reload());
+            return;
+        }
         if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + 1f / fireRate;
@@ -30,34 +57,46 @@ public class Gun : MonoBehaviour
         }
     }
 
+    IEnumerator Reload()
+    {
+        isReloading = true;
+
+        //scopeOverlay.SetActive(false);
+        //scopeAnimator.SetBool("Scoped", false);
+        animator.SetBool("Reloading", true);
+        //mainCamera.fieldOfView = 60f;
+
+        yield return new WaitForSeconds(reloadTime - .25f);
+        animator.SetBool("Reloading", false);
+        yield return new WaitForSeconds(.25f);
+
+        currentAmmo = maxAmmo;
+        isReloading = false;
+    }
 
     void Shoot()
     {
         muzzleFlash.Play();
-        rifleSound.Play();
 
-        RaycastHit hit;
-        if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+        currentAmmo--;
+
+        //Shoot
+
+        for(int i = 0; i < bulletList.Count; i++)
         {
-            Debug.Log(hit.transform.name);
-
-            Target target = hit.transform.GetComponent<Target>();
-            if (target != null)
+            if (!bulletList[i].activeInHierarchy)
             {
-                target.TakeDamage(damage);
+                bulletList[i].transform.position = transform.position;
+                bulletList[i].transform.rotation = transform.rotation;
+                bulletList[i].SetActive(true);
+                Rigidbody tempRigidBodyBullet = bulletList[i].GetComponent<Rigidbody>();
+                tempRigidBodyBullet.AddForce(tempRigidBodyBullet.transform.forward * bulletSpeed);
+                break;
             }
-
-            if (hit.rigidbody != null)
-            {
-                hit.rigidbody.AddForce(-hit.normal * impactForce);
-            }
-
-            GameObject impactGo = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
-            Destroy(impactGo, 2f);
-
-            GameObject bulletGo = Instantiate(bulletTrail, firePoint.position, firePoint.rotation);
-            Destroy(bulletGo, 2f);
         }
+
+        //Play Audio
+        bulletAudio.Play();
     }
 
 }

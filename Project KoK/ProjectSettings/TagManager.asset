@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ladder
   - LadderLandingPad
+  - Enemy
+  - Terrain
   layers:
   - Default
   - TransparentFX
@@ -17,11 +19,11 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - GUN
+  - Weapon
   - Occluder Static
   - Occludee Static
-  - 
-  - 
+  - Bullet
+  - Player
   - 
   - 
   - 
